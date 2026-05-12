@@ -166,7 +166,7 @@
                 </h2>
                 <div className="flex items-center space-x-2 text-sm text-gray-600 bg-blue-50 px-3 py-2 rounded-lg border border-blue-100">
                   <Info className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                  <span>SV tự nhập Chủ đề. Câu Trắc nghiệm (TN) = <strong>0.25đ</strong>. Điểm Tự luận (TL) tự gõ.</span>
+                  <span>SV tự nhập Chủ đề/Nội dung. Câu Trắc nghiệm (TN) = <strong>0.25đ</strong>. Điểm Tự luận (TL) tự gõ.</span>
                 </div>
               </div>
 
@@ -174,7 +174,7 @@
                 <table className="w-full border-collapse text-sm text-center">
                   <thead className="bg-slate-100 font-semibold text-slate-700">
                     <tr>
-                      <th className="border-b border-r border-slate-300 p-2 w-64 text-left" rowSpan={2}>Chủ đề / Nội dung</th>
+                      <th className="border-b border-r border-slate-300 p-2 w-64 text-left" rowSpan={2}>Chủ đề/Nội dung</th>
                       <th className="border-b border-r border-slate-300 p-2" colSpan={2}>Nhận biết</th>
                       <th className="border-b border-r border-slate-300 p-2" colSpan={2}>Thông hiểu</th>
                       <th className="border-b border-r border-slate-300 p-2" colSpan={2}>Vận dụng</th>
@@ -204,7 +204,7 @@
                           <td className="border-b border-r border-slate-300 p-1 text-left">
                             <input 
                               type="text" 
-                              placeholder="Nhập tên chủ đề..."
+                              placeholder="Nhập tên chủ đề/nội dung..."
                               className="w-full p-2 border border-transparent hover:border-slate-300 focus:border-indigo-500 rounded bg-transparent focus:bg-white outline-none"
                               value={row.topic}
                               onChange={(e) => handleInputChange(row.id, 'topic', e.target.value)}
@@ -317,7 +317,7 @@
                   <h2 className="text-xl font-bold text-gray-800 mb-2">Biên soạn Bảng đặc tả</h2>
                   <p className="text-sm text-gray-500 mb-4">Các chủ đề dưới đây được tự động lấy từ Ma trận bạn vừa lập.</p>
                   
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Đang soạn yêu cầu cho chủ đề:</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Đang soạn yêu cầu cho chủ đề/nội dung:</label>
                   {topics.length === 0 ? (
                     <div className="p-3 bg-red-50 text-red-600 rounded border border-red-200 text-sm">
                       Bạn chưa nhập tên Chủ đề nào bên tab Lập Ma trận. Hãy quay lại bước 1!
