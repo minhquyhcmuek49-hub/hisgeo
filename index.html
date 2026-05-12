@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduAssess Practice - Thiết kế Đề kiểm tra</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = window.React;
+        const { createRoot } = window.ReactDOM;
+
+        // --- CÁC BIỂU TƯỢNG (ICONS) ĐƯỢC TÍCH HỢP SẴN CHỐNG LỖI ---
+        const BookOpen = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>;
+        const Calculator = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>;
+        const FileText = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" x2="8" y1="13" y2="13"></line><line x1="16" x2="8" y1="17" y2="17"></line><line x1="10" x2="8" y1="9" y2="9"></line></svg>;
+        const AlertTriangle = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line></svg>;
+        const CheckCircle = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>;
+        const Info = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg>;
+        const Target = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>;
+        const Plus = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>;
+        const Trash2 = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>;
+        const CheckSquare = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>;
+        const ArrowRight = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="5" x2="19" y1="12" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>;
+        // -------------------------------------------------------------
+
+        const defaultBloomVerbs = {
+          NB: "Kể tên, nêu, trình bày, xác định, nhận biết, liệt kê...",
+          TH: "Giải thích, phân tích, so sánh, phân biệt, tóm tắt...",
+          VD: "Vận dụng, liên hệ, giải quyết vấn đề, tính toán...",
+          VDC: "Đánh giá, sáng tạo, đề xuất giải pháp, thiết kế..."
+        };
+
+        const safeNum = (val) => {
+          if (val === '' || val === null || val === undefined) return 0;
+          const n = parseFloat(val);
+          return isNaN(n) ? 0 : n;
+        };
+
+        function App() {
+          const [activeTab, setActiveTab] = useState('matrix');
+          const [selectedSubject, setSelectedSubject] = useState('Địa lí 8');
+
+          const [matrixData, setMatrixData] = useState({
+            'Lịch sử 8': [{ id: 1, topic: 'Khởi nghĩa Tây Sơn', nb_tn: 2, nb_tl: 0, th_tn: 1, th_tl: 0, vd_tn: 0, vd_tl: 0, vdc_tn: 0, vdc_tl: 1 }],
+            'Địa lí 8': [{ id: 1, topic: 'Đặc điểm Khí hậu Việt Nam', nb_tn: 4, nb_tl: 0, th_tn: 0, th_tl: 0, vd_tn: 0, vd_tl: 2, vdc_tn: 0, vdc_tl: 0 }],
+            'Lịch sử 9': [{ id: 1, topic: 'Phong trào cách mạng 1930 - 1931', nb_tn: 4, nb_tl: 0, th_tn: 2, th_tl: 0, vd_tn: 0, vd_tl: 1, vdc_tn: 0, vdc_tl: 0 }],
+            'Địa lí 9': [{ id: 1, topic: 'Sự phát triển Nông nghiệp', nb_tn: 2, nb_tl: 0, th_tn: 2, th_tl: 0, vd_tn: 0, vd_tl: 1, vdc_tn: 0, vdc_tl: 0 }]
+          });
+
+          const updateMatrixData = (subject, newData) => {
+            setMatrixData({ ...matrixData, [subject]: newData });
+          };
+
+          return (
+            <div className="min-h-screen font-sans text-slate-800 pb-12">
+              <header className="bg-indigo-700 text-white shadow-md">
+                <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between">
+                  <div className="flex items-center space-x-3 mb-4 md:mb-0">
+                    <BookOpen className="w-8 h-8 text-indigo-200" />
+                    <div>
+                      <h1 className="text-xl font-bold">EduAssess Practice</h1>
+                      <p className="text-xs text-indigo-200">Rèn luyện kĩ năng thiết kế Đề kiểm tra</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center bg-indigo-800 p-1.5 rounded-lg border border-indigo-600 shadow-inner">
+                    <span className="text-sm mr-3 ml-2 font-medium">Đang thao tác:</span>
+                    <select 
+                      className="bg-white text-indigo-900 rounded px-3 py-1.5 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer"
+                      value={selectedSubject}
+                      onChange={(e) => setSelectedSubject(e.target.value)}
+                    >
+                      {Object.keys(matrixData).map(sub => (
+                        <option key={sub} value={sub}>{sub}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </header>
+
+              <nav className="max-w-7xl mx-auto px-4 mt-6">
+                <div className="flex flex-wrap gap-2 border-b border-gray-200">
+                  <TabButton icon={<Calculator />} label="1. Lập Ma trận" isActive={activeTab === 'matrix'} onClick={() => setActiveTab('matrix')} />
+                  <TabButton icon={<FileText />} label="2. Bảng Đặc tả" isActive={activeTab === 'spectable'} onClick={() => setActiveTab('spectable')} />
+                  <TabButton icon={<AlertTriangle />} label="3. Đối chiếu & Sửa lỗi (Thực hành)" isActive={activeTab === 'errorhunt'} onClick={() => setActiveTab('errorhunt')} />
+                </div>
+              </nav>
+
+              <main className="max-w-7xl mx-auto px-4 py-6">
+                {activeTab === 'matrix' && <MatrixBuilder subject={selectedSubject} data={matrixData[selectedSubject] || []} onUpdate={(d) => updateMatrixData(selectedSubject, d)} />}
+                {activeTab === 'spectable' && <SpecTableBuilder subject={selectedSubject} data={matrixData[selectedSubject] || []} />}
+                {activeTab === 'errorhunt' && <ErrorHuntGame />}
+              </main>
+            </div>
+          );
+        }
+
+        function TabButton({ icon, label, isActive, onClick }) {
+          return (
+            <button
+              onClick={onClick}
+              className={`flex items-center space-x-2 px-4 py-3 rounded-t-lg font-medium transition-colors ${
+                isActive 
+                  ? 'bg-white text-indigo-700 border-t border-l border-r border-gray-200 shadow-[0_4px_0_0_white]' 
+                  : 'text-gray-500 hover:text-indigo-600 hover:bg-indigo-50'
+              }`}
+              style={{ marginBottom: isActive ? '-1px' : '0' }}
+            >
+              {React.cloneElement(icon, { className: 'w-5 h-5' })}
+              <span>{label}</span>
+            </button>
+          );
+        }
+
+        function MatrixBuilder({ subject, data, onUpdate }) {
+          const pointsPerTN = 0.25;
+
+          const handleInputChange = (id, field, value) => {
+            const newData = data.map(row => {
+              if (row.id === id) {
+                return { ...row, [field]: field === 'topic' ? value : safeNum(value) };
+              }
+              return row;
+            });
+            onUpdate(newData);
+          };
+
+          const addRow = () => {
+            const newId = data.length > 0 ? Math.max(...data.map(d => d.id)) + 1 : 1;
+            onUpdate([...data, { id: newId, topic: '', nb_tn: 0, nb_tl: 0, th_tn: 0, th_tl: 0, vd_tn: 0, vd_tl: 0, vdc_tn: 0, vdc_tl: 0 }]);
+          };
+
+          const removeRow = (id) => {
+            onUpdate(data.filter(row => row.id !== id));
+          };
+
+          const totals = data.reduce((acc, row) => {
+            acc.nb_tn += safeNum(row.nb_tn); acc.nb_tl += safeNum(row.nb_tl);
+            acc.th_tn += safeNum(row.th_tn); acc.th_tl += safeNum(row.th_tl);
+            acc.vd_tn += safeNum(row.vd_tn); acc.vd_tl += safeNum(row.vd_tl);
+            acc.vdc_tn += safeNum(row.vdc_tn); acc.vdc_tl += safeNum(row.vdc_tl);
+            return acc;
+          }, { nb_tn:0, nb_tl:0, th_tn:0, th_tl:0, vd_tn:0, vd_tl:0, vdc_tn:0, vdc_tl:0 });
+
+          const points = {
+            nb: safeNum((totals.nb_tn * pointsPerTN) + totals.nb_tl),
+            th: safeNum((totals.th_tn * pointsPerTN) + totals.th_tl),
+            vd: safeNum((totals.vd_tn * pointsPerTN) + totals.vd_tl),
+            vdc: safeNum((totals.vdc_tn * pointsPerTN) + totals.vdc_tl),
+          };
+          const totalPoints = safeNum(points.nb + points.th + points.vd + points.vdc);
+
+          return (
+            <div className="bg-white p-6 rounded-lg shadow border border-gray-100 animate-in fade-in duration-300">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                <h2 className="text-xl font-bold text-gray-800 flex items-center">
+                  Thiết kế Ma trận <span className="ml-2 px-2 py-1 bg-indigo-100 text-indigo-700 text-sm rounded">{subject}</span>
+                </h2>
+                <div className="flex items-center space-x-2 text-sm text-gray-600 bg-blue-50 px-3 py-2 rounded-lg border border-blue-100">
+                  <Info className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                  <span>SV tự nhập Chủ đề. Câu Trắc nghiệm (TN) = <strong>0.25đ</strong>. Điểm Tự luận (TL) tự gõ.</span>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto rounded-lg border border-gray-300">
+                <table className="w-full border-collapse text-sm text-center">
+                  <thead className="bg-slate-100 font-semibold text-slate-700">
+                    <tr>
+                      <th className="border-b border-r border-slate-300 p-2 w-64 text-left" rowSpan={2}>Chủ đề / Nội dung</th>
+                      <th className="border-b border-r border-slate-300 p-2" colSpan={2}>Nhận biết</th>
+                      <th className="border-b border-r border-slate-300 p-2" colSpan={2}>Thông hiểu</th>
+                      <th className="border-b border-r border-slate-300 p-2" colSpan={2}>Vận dụng</th>
+                      <th className="border-b border-r border-slate-300 p-2" colSpan={2}>Vận dụng cao</th>
+                      <th className="border-b border-slate-300 p-2 bg-indigo-50" rowSpan={2}>Tổng điểm</th>
+                      <th className="border-b border-l border-slate-300 p-2 w-10" rowSpan={2}></th>
+                    </tr>
+                    <tr className="bg-slate-50 text-xs">
+                      <th className="border-b border-r border-slate-300 p-1 w-12">TNKQ</th>
+                      <th className="border-b border-r border-slate-300 p-1 w-12">TL</th>
+                      <th className="border-b border-r border-slate-300 p-1 w-12">TNKQ</th>
+                      <th className="border-b border-r border-slate-300 p-1 w-12">TL</th>
+                      <th className="border-b border-r border-slate-300 p-1 w-12">TNKQ</th>
+                      <th className="border-b border-r border-slate-300 p-1 w-12">TL</th>
+                      <th className="border-b border-r border-slate-300 p-1 w-12">TNKQ</th>
+                      <th className="border-b border-r border-slate-300 p-1 w-12">TL</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.map((row) => {
+                      const rowPoint = safeNum(
+                          (safeNum(row.nb_tn) + safeNum(row.th_tn) + safeNum(row.vd_tn) + safeNum(row.vdc_tn)) * pointsPerTN 
+                        + (safeNum(row.nb_tl) + safeNum(row.th_tl) + safeNum(row.vd_tl) + safeNum(row.vdc_tl))
+                      );
+                      return (
+                        <tr key={row.id} className="hover:bg-slate-50 transition-colors group">
+                          <td className="border-b border-r border-slate-300 p-1 text-left">
+                            <input 
+                              type="text" 
+                              placeholder="Nhập tên chủ đề..."
+                              className="w-full p-2 border border-transparent hover:border-slate-300 focus:border-indigo-500 rounded bg-transparent focus:bg-white outline-none"
+                              value={row.topic}
+                              onChange={(e) => handleInputChange(row.id, 'topic', e.target.value)}
+                            />
+                          </td>
+                          <CellInput value={row.nb_tn} onChange={(v) => handleInputChange(row.id, 'nb_tn', v)} />
+                          <CellInput value={row.nb_tl} onChange={(v) => handleInputChange(row.id, 'nb_tl', v)} step="0.5" isTl />
+                          <CellInput value={row.th_tn} onChange={(v) => handleInputChange(row.id, 'th_tn', v)} />
+                          <CellInput value={row.th_tl} onChange={(v) => handleInputChange(row.id, 'th_tl', v)} step="0.5" isTl />
+                          <CellInput value={row.vd_tn} onChange={(v) => handleInputChange(row.id, 'vd_tn', v)} />
+                          <CellInput value={row.vd_tl} onChange={(v) => handleInputChange(row.id, 'vd_tl', v)} step="0.5" isTl />
+                          <CellInput value={row.vdc_tn} onChange={(v) => handleInputChange(row.id, 'vdc_tn', v)} />
+                          <CellInput value={row.vdc_tl} onChange={(v) => handleInputChange(row.id, 'vdc_tl', v)} step="0.5" isTl />
+                          <td className="border-b border-slate-300 p-2 font-bold bg-indigo-50/50 text-indigo-700">{rowPoint.toFixed(2)}</td>
+                          <td className="border-b border-l border-slate-300 text-center">
+                            <button onClick={() => removeRow(row.id)} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity p-1">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    
+                    <tr>
+                      <td colSpan={11} className="border-b border-slate-300 p-0 text-left">
+                        <button onClick={addRow} className="w-full flex items-center justify-center py-2 text-sm text-indigo-600 hover:bg-indigo-50 font-medium transition-colors">
+                          <Plus className="w-4 h-4 mr-1" /> Thêm chủ đề mới
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr className="bg-slate-100 font-bold text-slate-800">
+                      <td className="border-r border-slate-300 p-3 text-right">TỔNG CỘNG:</td>
+                      <td className="border-r border-slate-300 p-2" colSpan={2}>
+                        {points.nb.toFixed(2)} đ ({totalPoints > 0 ? Math.round((points.nb/totalPoints)*100) : 0}%)
+                      </td>
+                      <td className="border-r border-slate-300 p-2" colSpan={2}>
+                        {points.th.toFixed(2)} đ ({totalPoints > 0 ? Math.round((points.th/totalPoints)*100) : 0}%)
+                      </td>
+                      <td className="border-r border-slate-300 p-2" colSpan={2}>
+                        {points.vd.toFixed(2)} đ ({totalPoints > 0 ? Math.round((points.vd/totalPoints)*100) : 0}%)
+                      </td>
+                      <td className="border-r border-slate-300 p-2" colSpan={2}>
+                        {points.vdc.toFixed(2)} đ ({totalPoints > 0 ? Math.round((points.vdc/totalPoints)*100) : 0}%)
+                      </td>
+                      <td className={`p-2 text-lg ${totalPoints === 10 ? 'text-green-600' : 'text-red-500'}`} colSpan={2}>
+                        {totalPoints.toFixed(2)} đ
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        }
+
+        function CellInput({ value, onChange, step = "1", isTl = false }) {
+          const [localValue, setLocalValue] = useState(value === 0 ? '' : (value ?? '').toString());
+
+          useEffect(() => {
+            const valString = value === 0 ? '' : (value ?? '').toString();
+            if (safeNum(localValue) !== safeNum(value) && localValue !== valString) {
+              setLocalValue(valString);
+            }
+          }, [value]);
+
+          const handleChange = (e) => {
+            const val = e.target.value;
+            setLocalValue(val);
+            if (val === '' || val === '.') {
+              onChange(0);
+            } else {
+              const parsed = parseFloat(val);
+              onChange(isNaN(parsed) ? 0 : parsed);
+            }
+          };
+
+          return (
+            <td className={`border-b border-r border-slate-300 p-1 ${isTl ? 'bg-amber-50/30' : ''}`}>
+              <input 
+                type="number" 
+                min="0"
+                step={step}
+                className="w-full text-center p-1.5 border border-slate-200 rounded text-slate-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-all"
+                value={localValue}
+                onChange={handleChange}
+                placeholder="0"
+              />
+            </td>
+          );
+        }
+
+        /* =========================================
+           TAB 2: BẢNG ĐẶC TẢ
+        ========================================= */
+        function SpecTableBuilder({ subject, data }) {
+          const topics = data.map(d => d.topic).filter(t => t.trim() !== '');
+          const [selectedTopic, setSelectedTopic] = useState(topics[0] || '');
+
+          useEffect(() => {
+            if (topics.length > 0 && !topics.includes(selectedTopic)) {
+              setSelectedTopic(topics[0]);
+            }
+          }, [topics, selectedTopic]);
+
+          return (
+            <div className="bg-white p-6 rounded-lg shadow border border-gray-100 flex gap-6 flex-col lg:flex-row animate-in fade-in duration-300">
+              <div className="flex-1 space-y-6">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-2">Biên soạn Bảng đặc tả</h2>
+                  <p className="text-sm text-gray-500 mb-4">Các chủ đề dưới đây được tự động lấy từ Ma trận bạn vừa lập.</p>
+                  
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Đang soạn yêu cầu cho chủ đề:</label>
+                  {topics.length === 0 ? (
+                    <div className="p-3 bg-red-50 text-red-600 rounded border border-red-200 text-sm">
+                      Bạn chưa nhập tên Chủ đề nào bên tab Lập Ma trận. Hãy quay lại bước 1!
+                    </div>
+                  ) : (
+                    <select 
+                      className="w-full border border-slate-300 bg-slate-50 text-slate-800 rounded-md p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"
+                      value={selectedTopic}
+                      onChange={(e) => setSelectedTopic(e.target.value)}
+                    >
+                      {topics.map((t, idx) => <option key={idx} value={t}>{t}</option>)}
+                    </select>
+                  )}
+                </div>
+
+                <div className={`space-y-4 ${topics.length === 0 ? 'opacity-50 pointer-events-none' : ''}`}>
+                  <SpecRow level="Nhận biết" verbs={defaultBloomVerbs.NB} color="border-blue-200 bg-blue-50/50" />
+                  <SpecRow level="Thông hiểu" verbs={defaultBloomVerbs.TH} color="border-green-200 bg-green-50/50" />
+                  <SpecRow level="Vận dụng" verbs={defaultBloomVerbs.VD} color="border-amber-200 bg-amber-50/50" />
+                  <SpecRow level="Vận dụng cao" verbs={defaultBloomVerbs.VDC} color="border-red-200 bg-red-50/50" />
+                </div>
+              </div>
+
+              <div className="lg:w-80 bg-slate-50 border border-slate-200 rounded-lg p-5 h-fit sticky top-6">
+                <h3 className="font-bold text-slate-800 flex items-center mb-4 border-b border-slate-200 pb-2">
+                  <CheckSquare className="w-5 h-5 mr-2 text-indigo-600" /> Lưu ý Viết Yêu cầu
+                </h3>
+                <ul className="text-sm text-slate-600 space-y-4">
+                  <li className="flex items-start">
+                    <span className="text-green-500 mr-2 mt-0.5">●</span>
+                    <span><strong>Động từ quan sát được:</strong> Dùng "Trình bày", "Phân tích" (Đo được). Không dùng "Hiểu được", "Nắm được" (Không đo được).</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-500 mr-2 mt-0.5">●</span>
+                    <span><strong>Bám sát SGK/CT:</strong> Mở sách Chân trời sáng tạo hoặc CT GDPT 2018 chép nguyên văn Yêu cầu cần đạt.</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-500 mr-2 mt-0.5">●</span>
+                    <span><strong>Khớp với Ma trận:</strong> Nếu ma trận không có điểm cho phần Vận dụng cao, bạn có thể để trống ô VDC.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          );
+        }
+
+        function SpecRow({ level, verbs, color }) {
+          return (
+            <div className={`border rounded-lg overflow-hidden transition-shadow focus-within:shadow-md ${color}`}>
+              <div className="px-4 py-2.5 border-b border-white/50 bg-white/60 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                <span className="font-bold text-slate-800">{level}</span>
+                <span className="text-xs text-slate-600 bg-white px-2 py-1 rounded border border-slate-100">Gợi ý từ: <span className="italic font-medium">{verbs}</span></span>
+              </div>
+              <div className="p-0 bg-white/40">
+                <textarea 
+                  className="w-full h-24 p-3 text-sm border-0 bg-transparent focus:ring-0 resize-none outline-none text-slate-700 placeholder-slate-400"
+                  placeholder={`Nhập Yêu cầu cần đạt cho mức ${level}...\nVí dụ: Trình bày được đặc điểm...`}
+                ></textarea>
+              </div>
+            </div>
+          );
+        }
+
+        /* =========================================
+           TAB 3: ĐỐI CHIẾU & SỬA LỖI (MOCK EXAMS)
+        ========================================= */
+        const practiceScenarios = {
+          'Địa lí 8': {
+            title: 'Đặc điểm Khí hậu Việt Nam',
+            matrix: [
+              { id: 1, level: 'Nhận biết', type: 'Trắc nghiệm', count: 4, points: 1.0 },
+              { id: 2, level: 'Vận dụng', type: 'Tự luận', count: 1, points: 2.0 }
+            ],
+            specs: [
+              { level: 'Nhận biết', content: 'Trình bày được đặc điểm khí hậu nhiệt đới gió mùa.' },
+              { level: 'Vận dụng', content: 'Vẽ được biểu đồ khí hậu (nhiệt độ, lượng mưa) của một trạm khí tượng.' }
+            ],
+            test: [
+              { id: 'q1', type: 'TN', text: 'Câu 1-4: (1.0đ) Trắc nghiệm về tính chất nhiệt đới gió mùa...', hasError: false },
+              { id: 'q2', type: 'TL', text: 'Câu 5: (2.0đ) Giải thích vì sao khí hậu nước ta mang tính chất nhiệt đới gió mùa ẩm?', hasError: true, 
+                errorQ: 'Phân tích lỗi sai của Câu 5 khi đối chiếu với Ma trận và Đặc tả:',
+                options: [
+                  'Câu hỏi Vượt quá số điểm quy định của Ma trận.',
+                  'Sai mức độ nhận thức: Câu hỏi là mức Thông hiểu (Giải thích), nhưng Ma trận/Đặc tả yêu cầu mức Vận dụng (Vẽ biểu đồ).',
+                  'Nội dung câu hỏi không nằm trong chương trình Địa lí 8.'
+                ],
+                correct: 1, explanation: 'Chính xác! Đặc tả ghi rõ mức Vận dụng phải là "Vẽ biểu đồ", nhưng giáo viên ra đề lại ra câu "Giải thích" (chỉ ở mức Thông hiểu).' }
+            ]
+          },
+          'Lịch sử 8': {
+            title: 'Khởi nghĩa Tây Sơn',
+            matrix: [
+              { id: 1, level: 'Thông hiểu', type: 'Tự luận', count: 1, points: 2.0 },
+              { id: 2, level: 'Vận dụng cao', type: 'Tự luận', count: 1, points: 1.0 }
+            ],
+            specs: [
+              { level: 'Thông hiểu', content: 'Giải thích được nguyên nhân thắng lợi của khởi nghĩa Tây Sơn.' },
+              { level: 'Vận dụng cao', content: 'Đánh giá được vai trò của Quang Trung - Nguyễn Huệ đối với lịch sử dân tộc.' }
+            ],
+            test: [
+              { id: 'q1', type: 'TL', text: 'Câu 1: (2.0đ) Giải thích nguyên nhân thắng lợi của phong trào Tây Sơn?', hasError: false },
+              { id: 'q2', type: 'TL', text: 'Câu 2: (1.0đ) Em hãy kể tên các chiến thắng lớn của nghĩa quân Tây Sơn từ năm 1771 đến 1789.', hasError: true, 
+                errorQ: 'Tại sao Câu 2 bị Ban Giám Hiệu yêu cầu sửa lại?',
+                options: [
+                  'Sai mức độ nhận thức thang Bloom: Động từ "Kể tên" thuộc mức Nhận biết, nhưng Ma trận yêu cầu mức Vận dụng cao.',
+                  'Số điểm 1.0đ cho câu Tự luận là quá ít, không đúng quy chế.',
+                  'Lịch sử 8 học theo sách mới không còn học bài Khởi nghĩa Tây Sơn.'
+                ],
+                correct: 0, explanation: 'Đúng! Để đạt mức Vận dụng cao (VDC) như ma trận quy định, câu hỏi cần yêu cầu học sinh "Đánh giá vai trò", "Nhận xét", chứ không thể chỉ là "Kể tên".' }
+            ]
+          },
+          'Địa lí 9': {
+            title: 'Sự phát triển Nông nghiệp',
+            matrix: [
+              { id: 1, level: 'Nhận biết', type: 'Trắc nghiệm', count: 4, points: 1.0 },
+              { id: 2, level: 'Vận dụng', type: 'Tự luận', count: 1, points: 3.0 },
+              { id: 3, level: 'TỔNG CỘNG', type: 'Toàn bài', count: 5, points: 3.0 }
+            ],
+            specs: [
+              { level: 'Nhận biết', content: 'Nhận biết được các vùng chuyên canh cây công nghiệp lớn.' },
+              { level: 'Vận dụng', content: 'Phân tích được khó khăn của nông nghiệp và đề xuất giải pháp.' }
+            ],
+            test: [
+              { id: 'q1', type: 'TN', text: 'Câu 1-4: (1.0đ) Các câu hỏi trắc nghiệm...', hasError: false },
+              { id: 'q2', type: 'TL', text: 'Câu 5: (3.0đ) Phân tích khó khăn và đề xuất giải pháp cho nông nghiệp vùng ĐBSCL.', hasError: false },
+              { id: 'q3', type: 'SYS', text: 'Dòng Tổng cộng của Ma trận', hasError: true, 
+                errorQ: 'Nhìn vào dòng Tổng Cộng của Ma trận trên, bạn phát hiện lỗi gì?',
+                options: [
+                  'Tỉ lệ Trắc nghiệm / Tự luận bị ngược.',
+                  'Cộng sai điểm cơ học: 1.0đ (TN) + 3.0đ (TL) = 4.0đ, nhưng Tổng cộng lại ghi là 3.0đ.',
+                  'Không có lỗi, điểm số hoàn toàn khớp.'
+                ],
+                correct: 1, explanation: 'Đúng! Đây là lỗi rất phổ biến của SV và GV khi cộng cơ học nhầm điểm giữa các ô trong Excel/Word.' }
+            ]
+          },
+          'Lịch sử 9': {
+            title: 'Việt Nam (1918 - 1945)',
+            matrix: [
+              { id: 1, level: 'Nhận biết', type: 'Trắc nghiệm', count: 2, points: 0.5 },
+              { id: 2, level: 'Thông hiểu', type: 'Trắc nghiệm', count: 2, points: 0.5 }
+            ],
+            specs: [
+              { level: 'Nhận biết', content: 'Nêu được thời gian, địa điểm thành lập Đảng.' },
+              { level: 'Thông hiểu', content: 'Trình bày được ý nghĩa lịch sử của việc thành lập Đảng Cộng sản Việt Nam.' }
+            ],
+            test: [
+              { id: 'q1', type: 'TN', text: 'Câu 1: (0.25đ) Đảng Cộng sản VN thành lập vào thời gian nào?', hasError: false },
+              { id: 'q2', type: 'TN', text: 'Câu 2: (0.25đ) Trình bày ý nghĩa của việc thành lập Đảng?', hasError: false },
+              { id: 'q3', type: 'TN', text: 'Câu 3: (0.25đ) Ai là người ghi biên bản trong hội nghị thành lập Đảng tại Cửu Long (Hương Cảng)?', hasError: true, 
+                errorQ: 'Câu hỏi số 3 vi phạm nguyên tắc gì khi ra đề?',
+                options: [
+                  'Hỏi chi tiết quá vụn vặt, không nằm trong chuẩn kiến thức kĩ năng hay Yêu cầu cần đạt của Đặc tả.',
+                  'Sai thể loại, câu này bắt buộc phải ra Tự luận.',
+                  'Điểm 0.25đ là sai quy định.'
+                ],
+                correct: 0, explanation: 'Chuẩn! Căn cứ theo Đặc tả, học sinh chỉ cần nêu Thời gian, Địa điểm và Ý nghĩa. Việc hỏi "ai ghi biên bản" là đánh đố, nằm ngoài chuẩn và đặc tả.' }
+            ]
+          }
+        };
+
+        function ErrorHuntGame() {
+          const [subject, setSubject] = useState('Địa lí 8');
+          const [activeQuiz, setActiveQuiz] = useState(null);
+          const [solved, setSolved] = useState([]);
+
+          const data = practiceScenarios[subject];
+
+          const handleTestClick = (item) => {
+            if (item.hasError) {
+              setActiveQuiz(item);
+            } else {
+              alert("Câu này hoàn toàn hợp lệ, bám sát ma trận và đặc tả. Hãy tìm câu khác!");
+            }
+          };
+
+          const handleAnswer = (idx) => {
+            if (idx === activeQuiz.correct) {
+              alert("🎉 CHÍNH XÁC!\n\n" + activeQuiz.explanation);
+              if (!solved.includes(subject)) setSolved([...solved, subject]);
+              setActiveQuiz(null);
+            } else {
+              alert("❌ Chưa đúng. Bạn hãy đọc kĩ lại Ma trận và Đặc tả phía bên trái nhé!");
+            }
+          };
+
+          return (
+            <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden animate-in fade-in duration-300">
+              <div className="bg-slate-800 text-white p-5 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                  <h2 className="text-xl font-bold flex items-center">
+                    <Target className="w-6 h-6 mr-2 text-rose-400" /> 
+                    Thực hành: Truy tìm Lỗi sai Đề kiểm tra
+                  </h2>
+                  <p className="text-sm text-slate-300 mt-1">Đóng vai Ban giám hiệu kiểm tra sự logic giữa [Ma trận] ↔ [Đặc tả] ↔ [Đề thi].</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium">Chọn bài tập:</span>
+                  <select 
+                    className="bg-slate-700 border border-slate-600 rounded px-3 py-1.5 focus:outline-none"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                  >
+                    {Object.keys(practiceScenarios).map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="p-4 bg-amber-50 border-b border-amber-200 text-amber-800 text-sm flex items-center">
+                <Info className="w-5 h-5 mr-2 flex-shrink-0" />
+                <strong>Hướng dẫn:</strong> Đọc bảng Ma trận & Đặc tả bên Trái. Sau đó click vào những Câu hỏi bên Phải mà bạn cho là "Ra sai" (không khớp ma trận/đặc tả).
+              </div>
+
+              <div className="flex flex-col lg:flex-row bg-slate-50 min-h-[500px]">
+                <div className="lg:w-1/2 p-6 border-r border-slate-200">
+                  <div className="mb-6">
+                    <div className="inline-block bg-indigo-100 text-indigo-800 font-bold px-3 py-1 rounded text-sm mb-3">Kế hoạch: {data.title}</div>
+                    
+                    <h3 className="font-bold text-slate-700 mb-2 border-b border-slate-300 pb-1">1. Trích xuất Ma trận</h3>
+                    <table className="w-full text-sm border-collapse border border-slate-300 bg-white shadow-sm mb-4">
+                      <thead className="bg-slate-100">
+                        <tr>
+                          <th className="border border-slate-300 p-2">Mức độ</th>
+                          <th className="border border-slate-300 p-2">Hình thức</th>
+                          <th className="border border-slate-300 p-2">Số lượng</th>
+                          <th className="border border-slate-300 p-2">Điểm</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.matrix.map((m, i) => (
+                          <tr key={i} className="text-center">
+                            <td className={`border border-slate-300 p-2 font-medium ${m.level.includes('TỔNG') ? 'text-red-600 font-bold' : ''}`}>{m.level}</td>
+                            <td className="border border-slate-300 p-2">{m.type}</td>
+                            <td className="border border-slate-300 p-2">{m.count}</td>
+                            <td className="border border-slate-300 p-2 font-bold">{m.points}đ</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    <h3 className="font-bold text-slate-700 mb-2 border-b border-slate-300 pb-1">2. Trích xuất Đặc tả</h3>
+                    <div className="space-y-2">
+                      {data.specs.map((s, i) => (
+                        <div key={i} className="bg-white p-3 rounded border border-slate-200 shadow-sm text-sm">
+                          <span className="font-bold text-indigo-600 block mb-1">{s.level}</span>
+                          <p className="text-slate-700">{s.content}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="lg:w-1/2 p-6 bg-white relative">
+                  <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <BookOpen className="w-32 h-32" />
+                  </div>
+                  <h3 className="text-center font-bold text-lg text-slate-800 mb-4">ĐỀ KIỂM TRA MÔ PHỎNG</h3>
+                  <div className="space-y-3 relative z-10">
+                    {data.test.map(t => (
+                      <div 
+                        key={t.id}
+                        onClick={() => handleTestClick(t)}
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all transform hover:-translate-y-1 ${
+                          solved.includes(subject) && t.hasError 
+                            ? 'border-green-400 bg-green-50 shadow-md' 
+                            : 'border-slate-200 bg-slate-50 hover:border-indigo-400 hover:shadow-md'
+                        }`}
+                      >
+                        <div className="flex items-start">
+                          <div className={`mr-3 mt-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${t.type === 'TN' ? 'bg-blue-500' : t.type === 'TL' ? 'bg-amber-500' : 'bg-red-500'}`}>
+                            {t.type}
+                          </div>
+                          <p className="text-slate-800 font-medium leading-relaxed">{t.text}</p>
+                        </div>
+                        {solved.includes(subject) && t.hasError && (
+                          <div className="mt-3 text-sm text-green-700 bg-green-100 p-2 rounded">
+                            <CheckCircle className="w-4 h-4 inline mr-1" /> Đã tìm ra lỗi!
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-8 text-center text-sm text-slate-500 flex items-center justify-center">
+                    <ArrowRight className="w-4 h-4 mr-2" /> Click vào ô có chứa lỗi để phân tích
+                  </div>
+                </div>
+              </div>
+
+              {activeQuiz && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                  <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div className="bg-rose-500 text-white p-4 flex items-center">
+                      <AlertTriangle className="w-6 h-6 mr-2" />
+                      <h3 className="text-lg font-bold">Phân tích Lỗi sai</h3>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-slate-800 font-medium mb-6 text-lg">{activeQuiz.errorQ}</p>
+                      <div className="space-y-3">
+                        {activeQuiz.options.map((opt, idx) => (
+                          <button 
+                            key={idx}
+                            className="w-full text-left p-4 rounded-xl border-2 border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 transition-colors text-slate-700"
+                            onClick={() => handleAnswer(idx)}
+                          >
+                            <span className="font-bold mr-2 text-indigo-500">{String.fromCharCode(65 + idx)}.</span> {opt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="bg-slate-50 p-4 text-right border-t border-slate-100">
+                      <button 
+                        className="text-slate-500 hover:text-slate-800 font-medium px-5 py-2 rounded-lg hover:bg-slate-200 transition-colors"
+                        onClick={() => setActiveQuiz(null)}
+                      >
+                        Đóng lại
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
